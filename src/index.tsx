@@ -1,35 +1,77 @@
+import { StrictMode, useRef, useEffect, useState, CSSProperties } from 'react';
 import { createRoot } from 'react-dom/client';
-import { StrictMode, CSSProperties } from 'react';
 import clsx from 'clsx';
 
 import { Article } from './components/article/Article';
 import { ArticleParamsForm } from './components/article-params-form/ArticleParamsForm';
-import { defaultArticleState } from './constants/articleProps';
+import { ArrowButton } from './ui/arrow-button';
+import { defaultArticleState, ArticleStateType } from './constants/articleProps';
+import { useDisclosure } from './hooks/useDisclosure';
 
 import './styles/index.scss';
 import styles from './styles/index.module.scss';
 
-const domNode = document.getElementById('root') as HTMLDivElement;
-const root = createRoot(domNode);
-
 const App = () => {
+	const { isOpen, toggle, close } = useDisclosure();
+	const sidebarRef = useRef<HTMLDivElement | null>(null);
+	const [articleStyle, setArticleStyle] = useState<ArticleStateType>(defaultArticleState);
+
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (
+				sidebarRef.current &&
+				!sidebarRef.current.contains(event.target as Node)
+			) {
+				close();
+			}
+		};
+
+		if (isOpen) {
+			document.addEventListener('mousedown', handleClickOutside);
+		}
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, [isOpen, close]);
+
+	const handleApply = (newState: ArticleStateType) => {
+		setArticleStyle(newState);
+	};
+
 	return (
 		<main
 			className={clsx(styles.main)}
 			style={
 				{
-					'--font-family': defaultArticleState.fontFamilyOption.value,
-					'--font-size': defaultArticleState.fontSizeOption.value,
-					'--font-color': defaultArticleState.fontColor.value,
-					'--container-width': defaultArticleState.contentWidth.value,
-					'--bg-color': defaultArticleState.backgroundColor.value,
+					'--font-family': articleStyle.fontFamilyOption.value,
+					'--font-size': articleStyle.fontSizeOption.value,
+					'--font-color': articleStyle.fontColor.value,
+					'--container-width': articleStyle.contentWidth.value,
+					'--bg-color': articleStyle.backgroundColor.value,
 				} as CSSProperties
-			}>
-			<ArticleParamsForm />
+			}
+		>
+			{/* Кнопка стрелки — всегда отображается */}
+			<ArrowButton isOpen={isOpen} onClick={toggle} />
+
+			{/* Панель — отображается только при isOpen */}
+			{isOpen && (
+				<div ref={sidebarRef}>
+					<ArticleParamsForm
+						isOpen={isOpen}
+						onToggle={toggle}
+						onApply={handleApply}
+					/>
+				</div>
+			)}
+
 			<Article />
 		</main>
 	);
 };
+
+const domNode = document.getElementById('root') as HTMLDivElement;
+const root = createRoot(domNode);
 
 root.render(
 	<StrictMode>
