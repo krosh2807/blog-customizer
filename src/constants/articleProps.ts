@@ -161,7 +161,6 @@ export const contentWidthArr: OptionType[] = [
 		optionClassName: 'option-narrow',
 	},
 ];
-
 export const fontSizeOptions: OptionType[] = [
 	{ title: '18px', value: '18px', className: 'font-size-18' },
 	{ title: '25px', value: '25px', className: 'font-size-25' },
@@ -173,7 +172,7 @@ export const defaultArticleState = {
 	fontColor: fontColors[0],
 	backgroundColor: backgroundColors[0],
 	contentWidth: contentWidthArr[0],
-	fontSizeOption: fontSizeOptions[0],
+	fontSizeOption: fontSizeOptions[0], // добавлено
 };
 
 export type ArticleStateType = typeof defaultArticleState;

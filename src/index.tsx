@@ -5,7 +5,10 @@ import clsx from 'clsx';
 import { Article } from './components/article/Article';
 import { ArticleParamsForm } from './components/article-params-form/ArticleParamsForm';
 import { ArrowButton } from './ui/arrow-button';
-import { defaultArticleState, ArticleStateType } from './constants/articleProps';
+import {
+	defaultArticleState,
+	ArticleStateType,
+} from './constants/articleProps';
 import { useDisclosure } from './hooks/useDisclosure';
 
 import './styles/index.scss';
@@ -14,7 +17,8 @@ import styles from './styles/index.module.scss';
 const App = () => {
 	const { isOpen, toggle, close } = useDisclosure();
 	const sidebarRef = useRef<HTMLDivElement | null>(null);
-	const [articleStyle, setArticleStyle] = useState<ArticleStateType>(defaultArticleState);
+	const [articleStyle, setArticleStyle] =
+		useState<ArticleStateType>(defaultArticleState);
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
@@ -34,10 +38,6 @@ const App = () => {
 		};
 	}, [isOpen, close]);
 
-	const handleApply = (newState: ArticleStateType) => {
-		setArticleStyle(newState);
-	};
-
 	return (
 		<main
 			className={clsx(styles.main)}
@@ -49,21 +49,21 @@ const App = () => {
 					'--container-width': articleStyle.contentWidth.value,
 					'--bg-color': articleStyle.backgroundColor.value,
 				} as CSSProperties
-			}
-		>
+			}>
 			{/* Кнопка стрелки — всегда отображается */}
 			<ArrowButton isOpen={isOpen} onClick={toggle} />
 
-			{/* Панель — отображается только при isOpen */}
-			{isOpen && (
-				<div ref={sidebarRef}>
-					<ArticleParamsForm
-						isOpen={isOpen}
-						onToggle={toggle}
-						onApply={handleApply}
-					/>
-				</div>
-			)}
+			{/* Панель — всегда в DOM, с классом для анимации */}
+			<div
+				ref={sidebarRef}
+				className={clsx(styles.sidebar, { [styles.sidebar_open]: isOpen })}>
+				<ArticleParamsForm
+					isOpen={isOpen}
+					onToggle={toggle}
+					articleStyle={articleStyle}
+					setArticleStyle={setArticleStyle}
+				/>
+			</div>
 
 			<Article />
 		</main>
